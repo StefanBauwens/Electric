@@ -1,0 +1,39 @@
+{
+    "targetPlatforms": [
+        "basalt"
+    ], 
+    "displayName": "Electric", 
+    "name": "Electric", 
+    "messageKeys": {
+        "dummy": 10000
+    }, 
+    "companyName": "Stefan Bauwens", 
+    "enableMultiJS": true, 
+    "versionLabel": "1.0", 
+    "capabilities": [], 
+    "sdkVersion": "3", 
+    "appKeys": {
+        "dummy": 10000
+    }, 
+    "longName": "Electric", 
+    "shortName": "Electric", 
+    "watchapp": {
+        "watchface": true
+    }, 
+    "resources": {
+        "media": [
+            {
+                "type": "font", 
+                "name": "FONT_PIXEL_LCD_40", 
+                "file": "fonts/Pixel-LCD-7.ttf", 
+                "compatibility": "2.7"
+            }, 
+            {
+                "type": "bitmap", 
+                "name": "BG_IMAGE", 
+                "file": "background5.png"
+            }
+        ]
+    }, 
+    "uuid": "595e1d90-ec79-4199-820d-09aea593309f"
+}

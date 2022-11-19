@@ -1,0 +1,25 @@
+# project  configured on Sat Nov 19 22:31:54 2022 by
+# waf 1.7.11 (abi 98, python 20712f0 on linux2)
+# using /home/rebble/.pebble-sdk/SDKs/current/sdk-core/pebble/waf configure
+#
+----------------------------------------
+Setting top to
+/home/rebble/Documents/Electric/Electric
+----------------------------------------
+Setting out to
+/home/rebble/Documents/Electric/Electric/build
+----------------------------------------
+Checking for program webpack
+/home/rebble/.pebble-sdk/SDKs/current/node_modules/.bin/webpack
+find program=['webpack'] paths=['/home/rebble/.pebble-sdk/SDKs/current/node_modules/.bin'] var='WEBPACK' -> '/home/rebble/.pebble-sdk/SDKs/current/node_modules/.bin/webpack'
+----------------------------------------
+Found Pebble SDK for basalt in:
+/home/rebble/.pebble-sdk/SDKs/current/sdk-core/pebble/basalt
+----------------------------------------
+Checking for program gcc,cc
+arm-none-eabi-gcc
+find program=['gcc', 'cc'] paths='' var='CC' -> 'arm-none-eabi-gcc'
+----------------------------------------
+Checking for program ar
+arm-none-eabi-ar
+find program=['ar'] paths='' var='AR' -> 'arm-none-eabi-ar'

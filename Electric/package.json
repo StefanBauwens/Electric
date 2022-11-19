@@ -20,7 +20,19 @@
       "dummy"
     ],
     "resources": {
-      "media": []
+      "media": [
+		{
+			"type": "font",
+			"name": "FONT_PIXEL_LCD_40",
+			"file": "fonts/Pixel-LCD-7.ttf",
+			"compatibility":"2.7"
+		},
+		{
+			"type": "bitmap",
+			"name": "BG_IMAGE",
+			"file": "background5.png"
+		}
+	]
     }
   }
 }
