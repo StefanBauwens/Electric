@@ -2,8 +2,10 @@
 
 static Window *s_main_window;
 static TextLayer *s_time_layer;
+static TextLayer *s_lcd_layer; //16x2 lcd
 static BitmapLayer *s_bitmap_layer;
 static GFont s_time_font;
+static GFont s_lcd_font;
 static GBitmap *s_bitmap;
 
 static void update_time() {
@@ -18,6 +20,11 @@ static void update_time() {
 
   // Display this time on the TextLayer
   text_layer_set_text(s_time_layer, s_buffer);
+
+  //deal with date
+  static char s_date_buffer[16];
+  strftime(s_date_buffer, sizeof(s_date_buffer), "%A %d %b", tick_time);
+  text_layer_set_text(s_lcd_layer, s_date_buffer);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -42,10 +49,11 @@ static void main_window_load(Window *window) {
 
   // Create GFont
   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PIXEL_LCD_40));
+  s_lcd_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_SMALL_LCD_8));
 
-  // Create the TextLayer with specific bounds
-  s_time_layer = text_layer_create(
-      GRect(-8, 5, bounds.size.w, 50));
+  // Create the TextLayers with specific bounds
+  s_time_layer = text_layer_create(GRect(-8, 5, bounds.size.w, 50));
+  s_lcd_layer  = text_layer_create(GRect(30, 76, 96, 50));
 
   // Improve the layout to be more like a watchface
   text_layer_set_background_color(s_time_layer, GColorClear);
@@ -54,16 +62,27 @@ static void main_window_load(Window *window) {
   text_layer_set_font(s_time_layer, s_time_font);
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
-  // Add it as a child layer to the Window's root layer
+  //handle 16x2 lcd text layer
+  text_layer_set_background_color(s_lcd_layer, GColorClear);
+  text_layer_set_text_color(s_lcd_layer, /*GColorMidnightGreen*/ GColorBlack);
+  text_layer_set_font(s_lcd_layer, s_lcd_font);
+  text_layer_set_text_alignment(s_lcd_layer, GTextAlignmentLeft);
+  text_layer_set_overflow_mode(s_lcd_layer, GTextOverflowModeWordWrap);
+  //text_layer_set_text(s_lcd_layer, "Sunday 20 Nov   7.22'C"); //TODO test
+
+  // Add Text as a child layer to the Window's root layer
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
+  layer_add_child(window_layer, text_layer_get_layer(s_lcd_layer));
 }
 
 static void main_window_unload(Window *window) {
-  // Destroy TextLayer
+  // Destroy TextLayers
   text_layer_destroy(s_time_layer);
+  text_layer_destroy(s_lcd_layer);
 
   // Unload GFont
   fonts_unload_custom_font(s_time_font);
+  fonts_unload_custom_font(s_lcd_font);
 
   // Destroy bitmap & layer
   gbitmap_destroy(s_bitmap);
