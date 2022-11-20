@@ -1,0 +1,115 @@
+[
+  { 
+    "type": "heading", 
+    "defaultValue": "Electric Watchface" 
+  }, 
+  { 
+    "type": "text", 
+    "defaultValue": "Created by Stefan Bauwens for the Rebble Hackathon 001" 
+  },
+  {
+  "type": "section",
+  "items": [
+    {
+      "type": "heading",
+      "defaultValue": "Dot Matrix"
+    },
+    {
+      "type": "text",
+      "defaultValue": "Set the individual pixels of the dot matrix using 0 for off and 1 for on"
+    },
+    {
+      "type": "input",
+      "messageKey": "Row1",
+      "defaultValue": "00000000",
+      "label": "Row 1",
+      "attributes": {
+        "placeholder": "eg: 01010101",
+        "maxLength": 8,
+        "type": "tel"
+      }
+    },
+    {
+      "type": "input",
+      "messageKey": "Row2",
+      "defaultValue": "01100110",
+      "label": "Row 2",
+      "attributes": {
+        "placeholder": "eg: 01010101",
+        "maxLength": 8,
+        "type": "tel"
+      }
+    },
+    {
+      "type": "input",
+      "messageKey": "Row3",
+      "defaultValue": "11111111",
+      "label": "Row 3",
+      "attributes": {
+        "placeholder": "eg: 01010101",
+        "maxLength": 8,
+        "type": "tel"
+      }
+    },
+    {
+      "type": "input",
+      "messageKey": "Row4",
+      "defaultValue": "11111111",
+      "label": "Row 4",
+      "attributes": {
+        "placeholder": "eg: 01010101",
+        "maxLength": 8,
+        "type": "tel"
+      }
+    },
+    {
+      "type": "input",
+      "messageKey": "Row5",
+      "defaultValue": "11111111",
+      "label": "Row 5",
+      "attributes": {
+        "placeholder": "eg: 01010101",
+        "maxLength": 8,
+        "type": "tel"
+      }
+    },
+    {
+      "type": "input",
+      "messageKey": "Row6",
+      "defaultValue": "01111110",
+      "label": "Row 6",
+      "attributes": {
+        "placeholder": "eg: 01010101",
+        "maxLength": 8,
+        "type": "tel"
+      }
+    },
+    {
+      "type": "input",
+      "messageKey": "Row7",
+      "defaultValue": "00111100",
+      "label": "Row 7",
+      "attributes": {
+        "placeholder": "eg: 01010101",
+        "maxLength": 8,
+        "type": "tel"
+      }
+    },
+    {
+      "type": "input",
+      "messageKey": "Row8",
+      "defaultValue": "00011000",
+      "label": "Row 8",
+      "attributes": {
+        "placeholder": "eg: 01010101",
+        "maxLength": 8,
+        "type": "tel"
+      }
+    },
+    {
+      "type": "submit",
+      "defaultValue": "Save"
+    }
+  ]
+}
+]

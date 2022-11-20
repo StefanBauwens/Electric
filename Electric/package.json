@@ -2,9 +2,13 @@
   "name": "Electric",
   "author": "Stefan Bauwens",
   "version": "1.0.0",
-  "keywords": ["pebble-app"],
+  "keywords": [
+    "pebble-watchface"
+  ],
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "pebble-clay": "^1.0.4"
+  },
   "pebble": {
     "displayName": "Electric",
     "uuid": "595e1d90-ec79-4199-820d-09aea593309f",
@@ -13,38 +17,48 @@
     "targetPlatforms": [
       "basalt"
     ],
+    "capabilities": [
+      "configurable"
+    ],
     "watchapp": {
       "watchface": true
     },
     "messageKeys": [
-      "dummy"
+      "Row1",
+      "Row2",
+      "Row3",
+      "Row4",
+      "Row5",
+      "Row6",
+      "Row7",
+      "Row8"
     ],
     "resources": {
       "media": [
-		{
-			"type": "font",
-			"name": "FONT_PIXEL_LCD_40",
-			"file": "fonts/Pixel-LCD-7.ttf",
-			"compatibility":"2.7"
-		},
-		{
-			"type": "font",
-			"name": "FONT_SMALL_LCD_8",
-			"file": "fonts/lcd_display_grid2.ttf",
-			"compatibility":"2.7"
-		},
-		{
-			"type": "font",
-			"name": "FONT_LEDMATRIX_6",
-			"file": "fonts/ledmatrix.ttf",
-			"compatibility":"2.7"
-		},
-		{
-			"type": "bitmap",
-			"name": "BG_IMAGE",
-			"file": "background5.png"
-		}
-	]
+        {
+          "type": "font",
+          "name": "FONT_PIXEL_LCD_40",
+          "file": "fonts/Pixel-LCD-7.ttf",
+          "compatibility": "2.7"
+        },
+        {
+          "type": "font",
+          "name": "FONT_SMALL_LCD_8",
+          "file": "fonts/lcd_display_grid2.ttf",
+          "compatibility": "2.7"
+        },
+        {
+          "type": "font",
+          "name": "FONT_LEDMATRIX_6",
+          "file": "fonts/ledmatrix.ttf",
+          "compatibility": "2.7"
+        },
+        {
+          "type": "bitmap",
+          "name": "BG_IMAGE",
+          "file": "background5.png"
+        }
+      ]
     }
   }
 }

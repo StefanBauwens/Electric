@@ -1,3 +1,12 @@
+#define ROW1_KEY 1
+#define ROW2_KEY 2
+#define ROW3_KEY 3
+#define ROW4_KEY 4
+#define ROW5_KEY 5
+#define ROW6_KEY 6
+#define ROW7_KEY 7
+#define ROW8_KEY 8
+
 #include <pebble.h>
 
 static Window *s_main_window;
@@ -10,9 +19,20 @@ static GFont s_lcd_font;
 static GFont s_matrix_font;
 static GBitmap *s_bitmap;
 
+static char s_matrix_buffer[75];
+
+char* replace_char(char* str, char find, char replace){
+    char *current_pos = strchr(str,find);
+    while (current_pos) {
+        *current_pos = replace;
+        current_pos = strchr(current_pos,find);
+    }
+    return str;
+}
+
 static void set_matrix(char *row1, char *row2, char *row3, char *row4, char *row5, char *row6, char *row7, char *row8)
 {
-  static char s_matrix_buffer[75];
+  memset(s_matrix_buffer, 0, 75); //clear
   strcat(s_matrix_buffer, row1);
   strcat(s_matrix_buffer, " "); //extra space is neccesary to add breaks between "words" to prevent bad wrapping
   strcat(s_matrix_buffer, row2);
@@ -31,6 +51,75 @@ static void set_matrix(char *row1, char *row2, char *row3, char *row4, char *row
   strcat(s_matrix_buffer, " ");
 
   text_layer_set_text(s_matrix_layer, s_matrix_buffer);
+}
+
+static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) {
+  //Get row data
+  Tuple *row_1_t = dict_find(iter, MESSAGE_KEY_Row1);
+  Tuple *row_2_t = dict_find(iter, MESSAGE_KEY_Row2);
+  Tuple *row_3_t = dict_find(iter, MESSAGE_KEY_Row3);
+  Tuple *row_4_t = dict_find(iter, MESSAGE_KEY_Row4);
+  Tuple *row_5_t = dict_find(iter, MESSAGE_KEY_Row5);
+  Tuple *row_6_t = dict_find(iter, MESSAGE_KEY_Row6);
+  Tuple *row_7_t = dict_find(iter, MESSAGE_KEY_Row7);
+  Tuple *row_8_t = dict_find(iter, MESSAGE_KEY_Row8);
+
+  char *row_1_s = "00000000";
+  char *row_2_s = "00000000";
+  char *row_3_s = "00000000";
+  char *row_4_s = "00000000";
+  char *row_5_s = "00000000";
+  char *row_6_s = "00000000";
+  char *row_7_s = "00000000";
+  char *row_8_s = "00000000";
+
+  //TODO make shorter strings rightpad!
+
+/*
+  if (row_1_t) memcpy(row_1_s, (row_1_t->value->cstring), strlen(row_1_t->value->cstring));
+  if (row_2_t) memcpy(row_2_s, (row_2_t->value->cstring), strlen(row_2_t->value->cstring));
+  if (row_3_t) memcpy(row_3_s, (row_3_t->value->cstring), strlen(row_3_t->value->cstring));
+  if (row_4_t) memcpy(row_4_s, (row_4_t->value->cstring), strlen(row_4_t->value->cstring));
+  if (row_5_t) memcpy(row_5_s, (row_5_t->value->cstring), strlen(row_5_t->value->cstring));
+  if (row_6_t) memcpy(row_6_s, (row_6_t->value->cstring), strlen(row_6_t->value->cstring));
+  if (row_7_t) memcpy(row_7_s, (row_7_t->value->cstring), strlen(row_7_t->value->cstring));
+  if (row_8_t) memcpy(row_8_s, (row_8_t->value->cstring), strlen(row_8_t->value->cstring));
+*/
+  row_1_s = row_1_t ? (row_1_t->value->cstring) : "00000000";
+  row_2_s = row_2_t ? (row_2_t->value->cstring) : "00000000";
+  row_3_s = row_3_t ? (row_3_t->value->cstring) : "00000000";
+  row_4_s = row_4_t ? (row_4_t->value->cstring) : "00000000";
+  row_5_s = row_5_t ? (row_5_t->value->cstring) : "00000000";
+  row_6_s = row_6_t ? (row_6_t->value->cstring) : "00000000";
+  row_7_s = row_7_t ? (row_7_t->value->cstring) : "00000000";
+  row_8_s = row_8_t ? (row_8_t->value->cstring) : "00000000";
+  //replace 0 with space, since 0 has artifacts
+  replace_char(row_1_s, '0', ' ');
+  replace_char(row_2_s, '0', ' ');
+  replace_char(row_3_s, '0', ' ');
+  replace_char(row_4_s, '0', ' ');
+  replace_char(row_5_s, '0', ' ');
+  replace_char(row_6_s, '0', ' ');
+  replace_char(row_7_s, '0', ' ');
+  replace_char(row_8_s, '0', ' ');
+  set_matrix(row_1_s, 
+             row_2_s,
+             row_3_s,
+             row_4_s,
+             row_5_s,
+             row_6_s,
+             row_7_s,
+             row_8_s);
+
+  //store persistant data
+  persist_write_string(ROW1_KEY, row_1_s);
+  persist_write_string(ROW2_KEY, row_2_s);
+  persist_write_string(ROW3_KEY, row_3_s);
+  persist_write_string(ROW4_KEY, row_4_s);
+  persist_write_string(ROW5_KEY, row_5_s);
+  persist_write_string(ROW6_KEY, row_6_s);
+  persist_write_string(ROW7_KEY, row_7_s);
+  persist_write_string(ROW8_KEY, row_8_s);
 }
 
 static void update_time() {
@@ -102,14 +191,50 @@ static void main_window_load(Window *window) {
   text_layer_set_font(s_matrix_layer, s_matrix_font);
   text_layer_set_text_alignment(s_matrix_layer, GTextAlignmentLeft);
   text_layer_set_overflow_mode(s_matrix_layer, GTextOverflowModeWordWrap);
-  set_matrix("        ", 
-             " 11  11 ", 
-             "11111111",
-             "11111111",
-             "11111111",
-             " 111111 ",
-             "  1111  ",
-             "   11   ");
+
+  //handle matrix persistant data
+  if (!persist_exists(ROW1_KEY)) //if no persistant data load default (heart)
+  {
+    set_matrix("        ", 
+                " 11  11 ", 
+                "11111111",
+                "11111111",
+                "11111111",
+                " 111111 ",
+                "  1111  ",
+                "   11   ");
+                
+  }
+  else //load persistant data
+  {
+    char row1_buffer[9];
+    char row2_buffer[9];
+    char row3_buffer[9];
+    char row4_buffer[9];
+    char row5_buffer[9];
+    char row6_buffer[9];
+    char row7_buffer[9];
+    char row8_buffer[9];
+
+    persist_read_string(ROW1_KEY, row1_buffer, sizeof(row1_buffer));
+    persist_read_string(ROW2_KEY, row2_buffer, sizeof(row2_buffer));
+    persist_read_string(ROW3_KEY, row3_buffer, sizeof(row3_buffer));
+    persist_read_string(ROW4_KEY, row4_buffer, sizeof(row4_buffer));
+    persist_read_string(ROW5_KEY, row5_buffer, sizeof(row5_buffer));
+    persist_read_string(ROW6_KEY, row6_buffer, sizeof(row6_buffer));
+    persist_read_string(ROW7_KEY, row7_buffer, sizeof(row7_buffer));
+    persist_read_string(ROW8_KEY, row8_buffer, sizeof(row8_buffer));
+
+    set_matrix(row1_buffer,
+               row2_buffer,
+               row3_buffer,
+               row4_buffer,
+               row5_buffer,
+               row6_buffer,
+               row7_buffer,
+               row8_buffer);
+  }
+
 
   // Add Text as a child layer to the Window's root layer
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
@@ -149,6 +274,10 @@ static void init() {
 
   // Make sure the time is displayed from the start
   update_time();
+
+  // Open AppMessage connection
+  app_message_register_inbox_received(prv_inbox_received_handler);
+  app_message_open(128, 128);
 }
 
 static void deinit() {
