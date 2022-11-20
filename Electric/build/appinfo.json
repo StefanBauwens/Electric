@@ -35,6 +35,12 @@
                 "compatibility": "2.7"
             }, 
             {
+                "type": "font", 
+                "name": "FONT_LEDMATRIX_6", 
+                "file": "fonts/ledmatrix.ttf", 
+                "compatibility": "2.7"
+            }, 
+            {
                 "type": "bitmap", 
                 "name": "BG_IMAGE", 
                 "file": "background5.png"
