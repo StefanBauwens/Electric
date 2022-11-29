@@ -7,29 +7,36 @@
     "messageKeys": {
         "Row1": 10000, 
         "Row2": 10001, 
-        "Row3": 10002, 
+        "apiKey": 10009, 
         "Row4": 10003, 
         "Row5": 10004, 
         "Row6": 10005, 
         "Row7": 10006, 
-        "Row8": 10007
+        "Row8": 10007, 
+        "Row3": 10002, 
+        "temp": 10010, 
+        "useFahrenheit": 10008
     }, 
     "companyName": "Stefan Bauwens", 
     "enableMultiJS": true, 
     "versionLabel": "1.0", 
     "capabilities": [
+        "location", 
         "configurable"
     ], 
     "sdkVersion": "3", 
     "appKeys": {
         "Row1": 10000, 
         "Row2": 10001, 
-        "Row3": 10002, 
+        "apiKey": 10009, 
         "Row4": 10003, 
         "Row5": 10004, 
         "Row6": 10005, 
         "Row7": 10006, 
-        "Row8": 10007
+        "Row8": 10007, 
+        "Row3": 10002, 
+        "temp": 10010, 
+        "useFahrenheit": 10008
     }, 
     "longName": "Electric", 
     "shortName": "Electric", 

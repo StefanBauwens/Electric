@@ -14,3 +14,6 @@ extern uint32_t MESSAGE_KEY_Row5;
 extern uint32_t MESSAGE_KEY_Row6;
 extern uint32_t MESSAGE_KEY_Row7;
 extern uint32_t MESSAGE_KEY_Row8;
+extern uint32_t MESSAGE_KEY_apiKey;
+extern uint32_t MESSAGE_KEY_temp;
+extern uint32_t MESSAGE_KEY_useFahrenheit;

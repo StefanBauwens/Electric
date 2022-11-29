@@ -14,3 +14,6 @@ uint32_t MESSAGE_KEY_Row5 = 10004;
 uint32_t MESSAGE_KEY_Row6 = 10005;
 uint32_t MESSAGE_KEY_Row7 = 10006;
 uint32_t MESSAGE_KEY_Row8 = 10007;
+uint32_t MESSAGE_KEY_apiKey = 10009;
+uint32_t MESSAGE_KEY_temp = 10010;
+uint32_t MESSAGE_KEY_useFahrenheit = 10008;

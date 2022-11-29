@@ -8,6 +8,38 @@
     "defaultValue": "Created by Stefan Bauwens for the Rebble Hackathon 001" 
   },
   {
+    "type": "section",
+    "items": [
+      {
+        "type": "heading",
+        "defaultValue": "Temperature"
+      },
+      {
+        "type": "toggle",
+        "messageKey": "useFahrenheit",
+        "label": "Use Fahrenheit",
+        "defaultValue": false
+      },
+      {
+        "type": "input",
+        "messageKey": "apiKey",
+        "label": "OpenWeatherMap API key",
+        "defaultValue": "xxx"
+      },
+      {
+        "type": "input",
+        "messageKey": "temp",
+        "defaultValue": "00000000",
+        "label": "temp",
+        "attributes": {
+          "placeholder": "eg: 01010101",
+          "maxLength": 8,
+          "type": "tel"
+        }
+      }
+    ]
+  },
+  {
   "type": "section",
   "items": [
     {
@@ -105,11 +137,11 @@
         "maxLength": 8,
         "type": "tel"
       }
-    },
-    {
-      "type": "submit",
-      "defaultValue": "Save"
     }
   ]
+},
+{
+  "type": "submit",
+  "defaultValue": "Save"
 }
 ]

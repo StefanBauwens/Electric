@@ -1,4 +1,4 @@
-#define ROW1_KEY 1
+#define ROW1_KEY 1 //persistant data
 #define ROW2_KEY 2
 #define ROW3_KEY 3
 #define ROW4_KEY 4
@@ -6,6 +6,7 @@
 #define ROW6_KEY 6
 #define ROW7_KEY 7
 #define ROW8_KEY 8
+#define TEMPERATURE_KEY 10
 
 #include <pebble.h>
 
@@ -20,6 +21,9 @@ static GFont s_matrix_font;
 static GBitmap *s_bitmap;
 
 static char s_matrix_buffer[75];
+static char s_lcd_buffer[33];
+static char s_date_buffer[17];
+static char s_temperature_buffer[8];
 
 char* replace_char(char* str, char find, char replace){
     char *current_pos = strchr(str,find);
@@ -28,6 +32,13 @@ char* replace_char(char* str, char find, char replace){
         current_pos = strchr(current_pos,find);
     }
     return str;
+}
+
+static void set_lcd()
+{
+  //write on lcd
+  snprintf(s_lcd_buffer, sizeof(s_lcd_buffer), "%s, %s", s_date_buffer, s_temperature_buffer); //combine test out
+  text_layer_set_text(s_lcd_layer, s_lcd_buffer);
 }
 
 static void set_matrix(char *row1, char *row2, char *row3, char *row4, char *row5, char *row6, char *row7, char *row8)
@@ -54,6 +65,17 @@ static void set_matrix(char *row1, char *row2, char *row3, char *row4, char *row
 }
 
 static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) {
+  //get temperature if sent
+  Tuple *temp_t = dict_find(iter, MESSAGE_KEY_temp); //temperature in string with correct unit already
+  if (temp_t) 
+  {
+    snprintf(s_temperature_buffer, sizeof(s_temperature_buffer), "%s", temp_t->value->cstring);
+    //store in persistant data
+    persist_write_string(TEMPERATURE_KEY, s_temperature_buffer);
+    //write to lcd
+    set_lcd();
+  }
+
   //Get row data
   Tuple *row_1_t = dict_find(iter, MESSAGE_KEY_Row1);
   Tuple *row_2_t = dict_find(iter, MESSAGE_KEY_Row2);
@@ -134,15 +156,24 @@ static void update_time() {
 
   // Display this time on the TextLayer
   text_layer_set_text(s_time_layer, s_buffer);
-
-  //deal with date
-  static char s_date_buffer[16];
-  strftime(s_date_buffer, sizeof(s_date_buffer), "%A %d %b", tick_time);
-  text_layer_set_text(s_lcd_layer, s_date_buffer);
 }
 
-static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-  update_time();
+static void update_date()
+{
+  // Get a tm structure
+  time_t temp = time(NULL);
+  struct tm *tick_time = localtime(&temp);
+
+  strftime(s_date_buffer, sizeof(s_date_buffer), "%A %d %b", tick_time);
+  set_lcd(); 
+}
+
+static void tick_handler_min(struct tm *tick_time, TimeUnits units_changed) {
+  update_time(); 
+}
+
+static void tick_handler_day(struct tm *tick_time, TimeUnits units_changed) {
+  update_date(); 
 }
 
 static void main_window_load(Window *window) {
@@ -235,6 +266,15 @@ static void main_window_load(Window *window) {
                row8_buffer);
   }
 
+  //handle temperature persistant data
+  if(!persist_exists(TEMPERATURE_KEY))
+  {
+    snprintf(s_temperature_buffer, sizeof(s_temperature_buffer), "%s", "?°C");
+  }
+  else
+  {
+    persist_read_string(TEMPERATURE_KEY, s_temperature_buffer, sizeof(s_temperature_buffer));
+  }
 
   // Add Text as a child layer to the Window's root layer
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
@@ -246,10 +286,12 @@ static void main_window_unload(Window *window) {
   // Destroy TextLayers
   text_layer_destroy(s_time_layer);
   text_layer_destroy(s_lcd_layer);
+  text_layer_destroy(s_matrix_layer);
 
   // Unload GFont
   fonts_unload_custom_font(s_time_font);
   fonts_unload_custom_font(s_lcd_font);
+  fonts_unload_custom_font(s_matrix_font);
 
   // Destroy bitmap & layer
   gbitmap_destroy(s_bitmap);
@@ -270,10 +312,12 @@ static void init() {
   window_stack_push(s_main_window, true);
 
   // Register with TickTimerService
-  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler_min);
+  tick_timer_service_subscribe(DAY_UNIT, tick_handler_day);
 
   // Make sure the time is displayed from the start
   update_time();
+  update_date();
 
   // Open AppMessage connection
   app_message_register_inbox_received(prv_inbox_received_handler);

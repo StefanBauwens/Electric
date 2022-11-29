@@ -18,7 +18,8 @@
       "basalt"
     ],
     "capabilities": [
-      "configurable"
+      "configurable",
+      "location"
     ],
     "watchapp": {
       "watchface": true
@@ -31,7 +32,10 @@
       "Row5",
       "Row6",
       "Row7",
-      "Row8"
+      "Row8",
+      "useFahrenheit",
+      "apiKey",
+      "temp" 
     ],
     "resources": {
       "media": [
