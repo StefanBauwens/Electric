@@ -2,7 +2,7 @@
 var Clay = require('pebble-clay');
 var clayConfig = require('./config.json');
 // default config
-var clay = new Clay(clayConfig);
+var clay = new Clay(clayConfig, null, {autoHandleEvents: false});
 var messageKeys = require('message_keys');
 
 
@@ -17,32 +17,46 @@ var xhrRequest = function (url, type, callback) {
 
 function locationSuccess(pos) {
     // We will request the weather here
-    clay.getSettings()
-    //TODO use clay.getSettings() --> for api key and fahrenheit settings, if not set, don't call?
-    //https://github.com/pebble/clay#methods
-    //https://developer.rebble.io/developer.pebble.com/tutorials/watchface-tutorial/part3/index.html
-    //https://api.openweathermap.org/data/2.5/weather?q=Sint-Niklaas,%20Belgium&APPID=c408d3f777d8e4ad81fe4bfce26397e0&units=metric
 
-    //get api key and use fahrenheit
-    var apiKey = clayConfig.getItemByMessageKey() //TODO not sure how exactly it should be gotten //TODO or try getting from localstorage?
+    var apiKey = localStorage.getItem("OPENWEATHER_APIKEY");
+    var useFahrenheit = localStorage.getItem("USEFAHRENHEIT");
+
+    if (apiKey === null)
+    {
+        console.log("Apikey is null. Returning..");
+        //TODO return "?°" + useFahrenheit?"F":"C";
+        return;
+    }
+
+    https://api.openweathermap.org/data/2.5/weather?q=Sint-Niklaas,%20Belgium&APPID=c408d3f777d8e4ad81fe4bfce26397e0&units=metric
+
 
     // Construct URL
     var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
-    pos.coords.latitude + '&lon=' + pos.coords.longitude + '&appid=' + myAPIKey;
+    pos.coords.latitude + '&lon=' + pos.coords.longitude + '&appid=' + apiKey + '&units=' + (useFahrenheit == 1?'imperial':'metric');
 
     // Send request to OpenWeatherMap
     xhrRequest(url, 'GET', 
         function(responseText) {
-        // responseText contains a JSON object with weather info
-        var json = JSON.parse(responseText);
+            // responseText contains a JSON object with weather info
+            var json = JSON.parse(responseText);
 
-        // Temperature in Kelvin requires adjustment
-        var temperature = Math.round(json.main.temp - 273.15);
-        console.log('Temperature is ' + temperature);
+            //we use toFixed to get .0 at the end even if it's nice and round. I mainly want a comma number because then the string will be
+            //long enough in all cases to overflow to the next line of lcd haha
+            var temperature = (Math.round(json.main.temp*10)/10).toFixed(1) + (useFahrenheit == 1?'°F':'°C');
+            console.log('Temperature is ' + temperature);
 
-        // Conditions
-        var conditions = json.weather[0].main;      
-        console.log('Conditions are ' + conditions);
+            var dict = { "temp": temperature };
+
+            // Send to Pebble
+            Pebble.sendAppMessage(dict,
+                function(e) {
+                    console.log('Weather info sent to Pebble successfully!');
+                },
+                function(e) {
+                    console.log('Error sending weather info to Pebble!');
+                }
+            );
         }      
     );
 }
@@ -65,7 +79,7 @@ Pebble.addEventListener('ready',
         console.log('PebbleKit JS ready!');
 
         // Get the initial weather
-        //getWeather();
+        getWeather();
     }   
 );
 
@@ -73,23 +87,48 @@ Pebble.addEventListener('ready',
 Pebble.addEventListener('appmessage',
   function(e) {
     console.log('AppMessage received!');
+    getWeather();
   }                     
 );
 
+Pebble.addEventListener('showConfiguration', //we need to implement this since we are overriding events in webviewclosed
+  function(e) {
+    clay.config = clayConfig;
+    Pebble.openURL(clay.generateUrl());
+});
 
 // Listen for when web view is closed
 Pebble.addEventListener('webviewclosed', //TODO PEbble config too big, so perhaps we have to replace sending data to pebble to optimise it? //send it in chunks?
     function(e) {
     if (e && !e.response) { return; }
   
-    var dict = clay.getSettings(e.response);
-    console.log("webviewclosed!");
-    console.log(e.response);
-    console.log(dict[messageKeys.apiKey]); //this works!
-    if (dict.apiKey)
+    var dict = clay.getSettings(e.response); //dict is too large so we only send neccesary stuff:
+
+    var dictKeys = Object.keys(dict);
+    var newDict = {};
+    for (let i = 0; i < dictKeys.length - 2; i++) //we skip temperature stuff
     {
-        console.log("apikey: " + dict.apiKey);
-        localStorage.setItem("APIKEY_KEY", dict.apiKey);
+	    newDict[dictKeys[i]] = dict[dictKeys[i]];
+    }
+    //console.log("newDict: " + JSON.stringify(newDict));
+
+    // Send settings values to watch side
+    Pebble.sendAppMessage(newDict, function(e) {
+        console.log('Sent config data to Pebble');
+    }, function(e) {
+        console.log('Failed to send config data!');
+        console.log(JSON.stringify(e));
+    });
+
+    //console.log("webviewclosed!");
+    //console.log(dict[messageKeys.apiKey]); //this works!
+
+    if (dict[messageKeys.apiKey])
+    {
+        console.log("apikey: " + dict[messageKeys.apiKey]);
+        localStorage.setItem("OPENWEATHER_APIKEY", dict[messageKeys.apiKey]);
+        localStorage.setItem("USEFAHRENHEIT", dict[messageKeys.useFahrenheit]);
+        getWeather(); //call getweather every time config is set in case user changed degrees settings
     }
   }
 );

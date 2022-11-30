@@ -37,7 +37,7 @@ char* replace_char(char* str, char find, char replace){
 static void set_lcd()
 {
   //write on lcd
-  snprintf(s_lcd_buffer, sizeof(s_lcd_buffer), "%s, %s", s_date_buffer, s_temperature_buffer); //combine test out
+  snprintf(s_lcd_buffer, sizeof(s_lcd_buffer), "%s %s", s_date_buffer, s_temperature_buffer); //combine test out
   text_layer_set_text(s_lcd_layer, s_lcd_buffer);
 }
 
@@ -107,41 +107,54 @@ static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) 
   if (row_7_t) memcpy(row_7_s, (row_7_t->value->cstring), strlen(row_7_t->value->cstring));
   if (row_8_t) memcpy(row_8_s, (row_8_t->value->cstring), strlen(row_8_t->value->cstring));
 */
-  row_1_s = row_1_t ? (row_1_t->value->cstring) : "00000000";
-  row_2_s = row_2_t ? (row_2_t->value->cstring) : "00000000";
-  row_3_s = row_3_t ? (row_3_t->value->cstring) : "00000000";
-  row_4_s = row_4_t ? (row_4_t->value->cstring) : "00000000";
-  row_5_s = row_5_t ? (row_5_t->value->cstring) : "00000000";
-  row_6_s = row_6_t ? (row_6_t->value->cstring) : "00000000";
-  row_7_s = row_7_t ? (row_7_t->value->cstring) : "00000000";
-  row_8_s = row_8_t ? (row_8_t->value->cstring) : "00000000";
-  //replace 0 with space, since 0 has artifacts
-  replace_char(row_1_s, '0', ' ');
-  replace_char(row_2_s, '0', ' ');
-  replace_char(row_3_s, '0', ' ');
-  replace_char(row_4_s, '0', ' ');
-  replace_char(row_5_s, '0', ' ');
-  replace_char(row_6_s, '0', ' ');
-  replace_char(row_7_s, '0', ' ');
-  replace_char(row_8_s, '0', ' ');
-  set_matrix(row_1_s, 
-             row_2_s,
-             row_3_s,
-             row_4_s,
-             row_5_s,
-             row_6_s,
-             row_7_s,
-             row_8_s);
+  if (row_1_t)
+  {
+    row_1_s = row_1_t ? (row_1_t->value->cstring) : "00000000";
+    row_2_s = row_2_t ? (row_2_t->value->cstring) : "00000000";
+    row_3_s = row_3_t ? (row_3_t->value->cstring) : "00000000";
+    row_4_s = row_4_t ? (row_4_t->value->cstring) : "00000000";
+    row_5_s = row_5_t ? (row_5_t->value->cstring) : "00000000";
+    row_6_s = row_6_t ? (row_6_t->value->cstring) : "00000000";
+    row_7_s = row_7_t ? (row_7_t->value->cstring) : "00000000";
+    row_8_s = row_8_t ? (row_8_t->value->cstring) : "00000000";
+    //replace 0 with space, since 0 has artifacts
+    replace_char(row_1_s, '0', ' ');
+    replace_char(row_2_s, '0', ' ');
+    replace_char(row_3_s, '0', ' ');
+    replace_char(row_4_s, '0', ' ');
+    replace_char(row_5_s, '0', ' ');
+    replace_char(row_6_s, '0', ' ');
+    replace_char(row_7_s, '0', ' ');
+    replace_char(row_8_s, '0', ' ');
+    set_matrix(row_1_s, 
+              row_2_s,
+              row_3_s,
+              row_4_s,
+              row_5_s,
+              row_6_s,
+              row_7_s,
+              row_8_s);
 
-  //store persistant data
-  persist_write_string(ROW1_KEY, row_1_s);
-  persist_write_string(ROW2_KEY, row_2_s);
-  persist_write_string(ROW3_KEY, row_3_s);
-  persist_write_string(ROW4_KEY, row_4_s);
-  persist_write_string(ROW5_KEY, row_5_s);
-  persist_write_string(ROW6_KEY, row_6_s);
-  persist_write_string(ROW7_KEY, row_7_s);
-  persist_write_string(ROW8_KEY, row_8_s);
+    //store persistant data
+    persist_write_string(ROW1_KEY, row_1_s);
+    persist_write_string(ROW2_KEY, row_2_s);
+    persist_write_string(ROW3_KEY, row_3_s);
+    persist_write_string(ROW4_KEY, row_4_s);
+    persist_write_string(ROW5_KEY, row_5_s);
+    persist_write_string(ROW6_KEY, row_6_s);
+    persist_write_string(ROW7_KEY, row_7_s);
+    persist_write_string(ROW8_KEY, row_8_s);
+  }
+}
+
+static void update_date()
+{
+  // Get a tm structure
+  time_t temp = time(NULL);
+  struct tm *tick_time = localtime(&temp);
+
+  strftime(s_date_buffer, sizeof(s_date_buffer), "%A %d %b", tick_time);
+  set_lcd(); 
 }
 
 static void update_time() {
@@ -156,20 +169,25 @@ static void update_time() {
 
   // Display this time on the TextLayer
   text_layer_set_text(s_time_layer, s_buffer);
-}
 
-static void update_date()
-{
-  // Get a tm structure
-  time_t temp = time(NULL);
-  struct tm *tick_time = localtime(&temp);
-
-  strftime(s_date_buffer, sizeof(s_date_buffer), "%A %d %b", tick_time);
-  set_lcd(); 
+  update_date(); //TODO ideally call only on a day change
 }
 
 static void tick_handler_min(struct tm *tick_time, TimeUnits units_changed) {
   update_time(); 
+
+  // Get weather update every 30 minutes
+  if(tick_time->tm_min % 30 == 0) {
+    // Begin dictionary
+    DictionaryIterator *iter;
+    app_message_outbox_begin(&iter);
+
+    // Add a key-value pair
+    dict_write_uint8(iter, 0, 0);
+
+    // Send the message!
+    app_message_outbox_send();
+  }
 }
 
 static void tick_handler_day(struct tm *tick_time, TimeUnits units_changed) {
@@ -274,6 +292,7 @@ static void main_window_load(Window *window) {
   else
   {
     persist_read_string(TEMPERATURE_KEY, s_temperature_buffer, sizeof(s_temperature_buffer));
+    set_lcd();
   }
 
   // Add Text as a child layer to the Window's root layer
@@ -313,7 +332,7 @@ static void init() {
 
   // Register with TickTimerService
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler_min);
-  tick_timer_service_subscribe(DAY_UNIT, tick_handler_day);
+  //tick_timer_service_subscribe(DAY_UNIT, tick_handler_day); //can't do both
 
   // Make sure the time is displayed from the start
   update_time();

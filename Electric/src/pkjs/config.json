@@ -25,17 +25,6 @@
         "messageKey": "apiKey",
         "label": "OpenWeatherMap API key",
         "defaultValue": "xxx"
-      },
-      {
-        "type": "input",
-        "messageKey": "temp",
-        "defaultValue": "00000000",
-        "label": "temp",
-        "attributes": {
-          "placeholder": "eg: 01010101",
-          "maxLength": 8,
-          "type": "tel"
-        }
       }
     ]
   },
