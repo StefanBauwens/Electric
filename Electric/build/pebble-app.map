@@ -29,7 +29,7 @@ Discarded input sections
                 0x0000000000000000        0x4 basalt/src/resource_ids.auto.c.9.o
  .data.RESOURCE_ID_BG_IMAGE
                 0x0000000000000000        0x4 basalt/src/resource_ids.auto.c.9.o
- .data.RESOURCE_ID_FONT_SMALL_LCD_8
+ .data.RESOURCE_ID_FONT_SMALL_LCD_9
                 0x0000000000000000        0x4 basalt/src/resource_ids.auto.c.9.o
  .data.RESOURCE_ID_FONT_LEDMATRIX_6
                 0x0000000000000000        0x4 basalt/src/resource_ids.auto.c.9.o

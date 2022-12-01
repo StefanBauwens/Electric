@@ -121,6 +121,8 @@
 	            // responseText contains a JSON object with weather info
 	            var json = JSON.parse(responseText);
 	
+	            //we use toFixed to get .0 at the end even if it's nice and round. I mainly want a comma number because then the string will be
+	            //long enough in all cases to overflow to the next line of lcd haha
 	            var temperature = (Math.round(json.main.temp*10)/10).toFixed(1) + (useFahrenheit == 1?'°F':'°C');
 	            console.log('Temperature is ' + temperature);
 	

@@ -212,12 +212,12 @@ static void main_window_load(Window *window) {
 
   // Create GFont
   s_time_font   = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PIXEL_LCD_40));
-  s_lcd_font    = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_SMALL_LCD_8));
+  s_lcd_font    = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_SMALL_LCD_9));
   s_matrix_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_LEDMATRIX_6));
 
   // Create the TextLayers with specific bounds
   s_time_layer   = text_layer_create(GRect(-8, 5, bounds.size.w, 50));
-  s_lcd_layer    = text_layer_create(GRect(30, 76, 96, 50));
+  s_lcd_layer    = text_layer_create(GRect(30, 75, 96, 50));
   s_matrix_layer = text_layer_create(GRect(6, 113, 50, 50));
 
   // Improve the layout to be more like a watchface

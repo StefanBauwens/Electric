@@ -53,8 +53,8 @@
             }, 
             {
                 "type": "font", 
-                "name": "FONT_SMALL_LCD_8", 
-                "file": "fonts/lcd_display_grid2.ttf", 
+                "name": "FONT_SMALL_LCD_9", 
+                "file": "fonts/lcd16x2.ttf", 
                 "compatibility": "2.7"
             }, 
             {
