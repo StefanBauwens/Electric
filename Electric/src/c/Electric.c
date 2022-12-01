@@ -7,6 +7,7 @@
 #define ROW7_KEY 7
 #define ROW8_KEY 8
 #define TEMPERATURE_KEY 10
+#define BLUETOOTH_CONNECTED_KEY 11
 
 #include <pebble.h>
 
@@ -65,6 +66,8 @@ static void set_matrix(char *row1, char *row2, char *row3, char *row4, char *row
 }
 
 static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) {
+  persist_write_bool(BLUETOOTH_CONNECTED_KEY, true); //set to true just to be sure just in case 
+  
   //get temperature if sent
   Tuple *temp_t = dict_find(iter, MESSAGE_KEY_temp); //temperature in string with correct unit already
   if (temp_t) 
@@ -194,6 +197,78 @@ static void tick_handler_day(struct tm *tick_time, TimeUnits units_changed) {
   update_date(); 
 }
 
+static void reset_matrix()
+{
+  bool isBTConnected = persist_exists(BLUETOOTH_CONNECTED_KEY) ? persist_read_bool(BLUETOOTH_CONNECTED_KEY) : true;
+  
+  if (isBTConnected)
+  {
+    //handle matrix persistant data
+    if (!persist_exists(ROW1_KEY)) //if no persistant data load default (heart)
+    {
+      set_matrix("        ", 
+                  " 11  11 ", 
+                  "11111111",
+                  "11111111",
+                  "11111111",
+                  " 111111 ",
+                  "  1111  ",
+                  "   11   ");
+                  
+    }
+    else //load persistant data
+    {
+      char row1_buffer[9];
+      char row2_buffer[9];
+      char row3_buffer[9];
+      char row4_buffer[9];
+      char row5_buffer[9];
+      char row6_buffer[9];
+      char row7_buffer[9];
+      char row8_buffer[9];
+
+      persist_read_string(ROW1_KEY, row1_buffer, sizeof(row1_buffer));
+      persist_read_string(ROW2_KEY, row2_buffer, sizeof(row2_buffer));
+      persist_read_string(ROW3_KEY, row3_buffer, sizeof(row3_buffer));
+      persist_read_string(ROW4_KEY, row4_buffer, sizeof(row4_buffer));
+      persist_read_string(ROW5_KEY, row5_buffer, sizeof(row5_buffer));
+      persist_read_string(ROW6_KEY, row6_buffer, sizeof(row6_buffer));
+      persist_read_string(ROW7_KEY, row7_buffer, sizeof(row7_buffer));
+      persist_read_string(ROW8_KEY, row8_buffer, sizeof(row8_buffer));
+
+      set_matrix(row1_buffer,
+                row2_buffer,
+                row3_buffer,
+                row4_buffer,
+                row5_buffer,
+                row6_buffer,
+                row7_buffer,
+                row8_buffer);
+    }
+  }
+  else //if bt disconnected
+  {
+     set_matrix("  1     ", 
+                "  11   1", 
+                "1 1 1  1",
+                " 111   1",
+                " 111   1",
+                "1 1 1   ",
+                "  11   1",
+                "  1     ");
+  }
+}
+
+static void bluetooth_callback(bool connected) {
+  persist_write_bool(BLUETOOTH_CONNECTED_KEY, connected);
+  if (!connected)
+  {
+      // Issue a vibrating alert
+      vibes_double_pulse();
+  }
+  reset_matrix(); //update led matrix
+}
+
 static void main_window_load(Window *window) {
   // Get information about the Window
   Layer *window_layer = window_get_root_layer(window);
@@ -241,48 +316,8 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_matrix_layer, GTextAlignmentLeft);
   text_layer_set_overflow_mode(s_matrix_layer, GTextOverflowModeWordWrap);
 
-  //handle matrix persistant data
-  if (!persist_exists(ROW1_KEY)) //if no persistant data load default (heart)
-  {
-    set_matrix("        ", 
-                " 11  11 ", 
-                "11111111",
-                "11111111",
-                "11111111",
-                " 111111 ",
-                "  1111  ",
-                "   11   ");
-                
-  }
-  else //load persistant data
-  {
-    char row1_buffer[9];
-    char row2_buffer[9];
-    char row3_buffer[9];
-    char row4_buffer[9];
-    char row5_buffer[9];
-    char row6_buffer[9];
-    char row7_buffer[9];
-    char row8_buffer[9];
-
-    persist_read_string(ROW1_KEY, row1_buffer, sizeof(row1_buffer));
-    persist_read_string(ROW2_KEY, row2_buffer, sizeof(row2_buffer));
-    persist_read_string(ROW3_KEY, row3_buffer, sizeof(row3_buffer));
-    persist_read_string(ROW4_KEY, row4_buffer, sizeof(row4_buffer));
-    persist_read_string(ROW5_KEY, row5_buffer, sizeof(row5_buffer));
-    persist_read_string(ROW6_KEY, row6_buffer, sizeof(row6_buffer));
-    persist_read_string(ROW7_KEY, row7_buffer, sizeof(row7_buffer));
-    persist_read_string(ROW8_KEY, row8_buffer, sizeof(row8_buffer));
-
-    set_matrix(row1_buffer,
-               row2_buffer,
-               row3_buffer,
-               row4_buffer,
-               row5_buffer,
-               row6_buffer,
-               row7_buffer,
-               row8_buffer);
-  }
+  //handle inital matrix state
+  reset_matrix();
 
   //handle temperature persistant data
   if(!persist_exists(TEMPERATURE_KEY))
@@ -333,6 +368,11 @@ static void init() {
   // Register with TickTimerService
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler_min);
   //tick_timer_service_subscribe(DAY_UNIT, tick_handler_day); //can't do both
+
+  // Register for Bluetooth connection updates
+  connection_service_subscribe((ConnectionHandlers) {
+    .pebble_app_connection_handler = bluetooth_callback
+  });
 
   // Make sure the time is displayed from the start
   update_time();

@@ -24,7 +24,7 @@
         "type": "input",
         "messageKey": "apiKey",
         "label": "OpenWeatherMap API key",
-        "defaultValue": "xxx"
+        "defaultValue": ""
       }
     ]
   },
