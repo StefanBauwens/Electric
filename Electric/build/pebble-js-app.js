@@ -101,15 +101,22 @@
 	    var apiKey = localStorage.getItem("OPENWEATHER_APIKEY");
 	    var useFahrenheit = localStorage.getItem("USEFAHRENHEIT");
 	
-	    if (apiKey === null)
+	    if (apiKey === null || apiKey == "")
 	    {
-	        console.log("Apikey is null. Returning..");
-	        //TODO return "?°" + useFahrenheit?"F":"C";
+	        console.log("Apikey is null. Returning empty string");
+	        var dict = { "temp": " " };
+	
+	            // Send to Pebble
+	            Pebble.sendAppMessage(dict,
+	                function(e) {
+	                    console.log('Empty weather info sent to Pebble successfully!');
+	                },
+	                function(e) {
+	                    console.log('Error sending empty weather info to Pebble!');
+	                }
+	            );
 	        return;
 	    }
-	
-	    https://api.openweathermap.org/data/2.5/weather?q=Sint-Niklaas,%20Belgium&APPID=c408d3f777d8e4ad81fe4bfce26397e0&units=metric
-	
 	
 	    // Construct URL
 	    var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
@@ -203,13 +210,13 @@
 	    //console.log("webviewclosed!");
 	    //console.log(dict[messageKeys.apiKey]); //this works!
 	
-	    if (dict[messageKeys.apiKey])
-	    {
+	    //if (dict[messageKeys.apiKey])
+	    //{
 	        console.log("apikey: " + dict[messageKeys.apiKey]);
 	        localStorage.setItem("OPENWEATHER_APIKEY", dict[messageKeys.apiKey]);
 	        localStorage.setItem("USEFAHRENHEIT", dict[messageKeys.useFahrenheit]);
 	        getWeather(); //call getweather every time config is set in case user changed degrees settings
-	    }
+	    //}
 	  }
 	);
 

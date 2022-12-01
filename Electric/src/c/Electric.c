@@ -287,7 +287,7 @@ static void main_window_load(Window *window) {
   //handle temperature persistant data
   if(!persist_exists(TEMPERATURE_KEY))
   {
-    snprintf(s_temperature_buffer, sizeof(s_temperature_buffer), "%s", "?°C");
+    snprintf(s_temperature_buffer, sizeof(s_temperature_buffer), "%s", ""); //empty string if no api key so isn't intrusive
   }
   else
   {
