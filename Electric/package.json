@@ -35,7 +35,10 @@
       "Row8",
       "useFahrenheit",
       "apiKey",
-      "temp" 
+      "temp",
+      "fullMatrix",
+      "lcd",
+      "lcdReset" 
     ],
     "resources": {
       "media": [
@@ -60,7 +63,7 @@
         {
           "type": "bitmap",
           "name": "BG_IMAGE",
-          "file": "background5.png"
+          "file": "background11.png"
         }
       ]
     }

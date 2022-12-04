@@ -7,14 +7,17 @@
     "messageKeys": {
         "Row1": 10000, 
         "Row2": 10001, 
-        "apiKey": 10009, 
+        "Row3": 10002, 
         "Row4": 10003, 
         "Row5": 10004, 
         "Row6": 10005, 
         "Row7": 10006, 
         "Row8": 10007, 
-        "Row3": 10002, 
+        "lcd": 10012, 
+        "apiKey": 10009, 
+        "lcdReset": 10013, 
         "temp": 10010, 
+        "fullMatrix": 10011, 
         "useFahrenheit": 10008
     }, 
     "companyName": "Stefan Bauwens", 
@@ -28,14 +31,17 @@
     "appKeys": {
         "Row1": 10000, 
         "Row2": 10001, 
-        "apiKey": 10009, 
+        "Row3": 10002, 
         "Row4": 10003, 
         "Row5": 10004, 
         "Row6": 10005, 
         "Row7": 10006, 
         "Row8": 10007, 
-        "Row3": 10002, 
+        "lcd": 10012, 
+        "apiKey": 10009, 
+        "lcdReset": 10013, 
         "temp": 10010, 
+        "fullMatrix": 10011, 
         "useFahrenheit": 10008
     }, 
     "longName": "Electric", 
@@ -66,7 +72,7 @@
             {
                 "type": "bitmap", 
                 "name": "BG_IMAGE", 
-                "file": "background5.png"
+                "file": "background11.png"
             }
         ]
     }, 

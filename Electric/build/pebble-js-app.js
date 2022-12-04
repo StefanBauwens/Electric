@@ -156,7 +156,7 @@
 	    navigator.geolocation.getCurrentPosition(
 	        locationSuccess,
 	        locationError,
-	        {timeout: 15000, maximumAge: 60000}
+	        {timeout: 25000, maximumAge: 60000}
 	    );
 	}
 	  
@@ -198,6 +198,7 @@
 		    newDict[dictKeys[i]] = dict[dictKeys[i]];
 	    }
 	    //console.log("newDict: " + JSON.stringify(newDict));
+	    //console.log("e.response: " + e.response);
 	
 	    // Send settings values to watch side
 	    Pebble.sendAppMessage(newDict, function(e) {
@@ -206,9 +207,6 @@
 	        console.log('Failed to send config data!');
 	        console.log(JSON.stringify(e));
 	    });
-	
-	    //console.log("webviewclosed!");
-	    //console.log(dict[messageKeys.apiKey]); //this works!
 	
 	    //if (dict[messageKeys.apiKey])
 	    //{
@@ -258,7 +256,7 @@
 /* 5 */
 /***/ (function(module, exports) {
 
-	module.exports = {"Row1":10000,"Row2":10001,"Row3":10002,"Row4":10003,"Row5":10004,"Row6":10005,"Row7":10006,"Row8":10007,"apiKey":10009,"temp":10010,"useFahrenheit":10008}
+	module.exports = {"Row1":10000,"Row2":10001,"Row3":10002,"Row4":10003,"Row5":10004,"Row6":10005,"Row7":10006,"Row8":10007,"apiKey":10009,"fullMatrix":10011,"lcd":10012,"lcdReset":10013,"temp":10010,"useFahrenheit":10008}
 
 /***/ }),
 /* 6 */

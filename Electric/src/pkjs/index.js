@@ -76,7 +76,7 @@ function getWeather() {
     navigator.geolocation.getCurrentPosition(
         locationSuccess,
         locationError,
-        {timeout: 15000, maximumAge: 60000}
+        {timeout: 25000, maximumAge: 60000}
     );
 }
   
@@ -118,6 +118,7 @@ Pebble.addEventListener('webviewclosed', //TODO PEbble config too big, so perhap
 	    newDict[dictKeys[i]] = dict[dictKeys[i]];
     }
     //console.log("newDict: " + JSON.stringify(newDict));
+    //console.log("e.response: " + e.response);
 
     // Send settings values to watch side
     Pebble.sendAppMessage(newDict, function(e) {
@@ -126,9 +127,6 @@ Pebble.addEventListener('webviewclosed', //TODO PEbble config too big, so perhap
         console.log('Failed to send config data!');
         console.log(JSON.stringify(e));
     });
-
-    //console.log("webviewclosed!");
-    //console.log(dict[messageKeys.apiKey]); //this works!
 
     //if (dict[messageKeys.apiKey])
     //{

@@ -20,6 +20,8 @@ static GFont s_time_font;
 static GFont s_lcd_font;
 static GFont s_matrix_font;
 static GBitmap *s_bitmap;
+static int s_battery_level;
+static Layer *s_battery_layer;
 
 static char s_matrix_buffer[75];
 static char s_lcd_buffer[33];
@@ -34,6 +36,17 @@ char* replace_char(char* str, char find, char replace){
     }
     return str;
 }
+/*
+// C substring function definition
+void substring(char s[], char sub[], int p, int l) {
+   int c = 0;
+   
+   while (c < l) {
+      sub[c] = s[p+c-1];
+      c++;
+   }
+   sub[c] = '\0';
+}*/
 
 static void set_lcd()
 {
@@ -65,9 +78,28 @@ static void set_matrix(char *row1, char *row2, char *row3, char *row4, char *row
   text_layer_set_text(s_matrix_layer, s_matrix_buffer);
 }
 
+static void battery_callback(BatteryChargeState state) {
+  // Record the new battery level
+  s_battery_level = state.charge_percent;
+  // Update meter
+  layer_mark_dirty(s_battery_layer);
+}
+
+static void battery_update_proc(Layer *layer, GContext *ctx) { //handles drawing battery layer
+  int battery_levels_to_show = (s_battery_level+5)/10; //should create a rounded integer between 0 and 10
+
+  //draw the bars
+  graphics_context_set_fill_color(ctx, GColorBrightGreen);
+  for(int i = 0; i < battery_levels_to_show; i++)
+  {
+    graphics_fill_rect(ctx, GRect(27 - 3*i, 0, 2, 7), 0, GCornerNone);
+  }
+}
+
 static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) {
   persist_write_bool(BLUETOOTH_CONNECTED_KEY, true); //set to true just to be sure just in case 
   
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "inbox received");
   //get temperature if sent
   Tuple *temp_t = dict_find(iter, MESSAGE_KEY_temp); //temperature in string with correct unit already
   if (temp_t) 
@@ -79,7 +111,10 @@ static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) 
     set_lcd();
   }
 
-  //Get row data
+  //Get full 8X8 data if exist
+  Tuple *fullMatrix_t = dict_find(iter, MESSAGE_KEY_fullMatrix);
+
+  //Get row data if exist
   Tuple *row_1_t = dict_find(iter, MESSAGE_KEY_Row1);
   Tuple *row_2_t = dict_find(iter, MESSAGE_KEY_Row2);
   Tuple *row_3_t = dict_find(iter, MESSAGE_KEY_Row3);
@@ -89,27 +124,15 @@ static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) 
   Tuple *row_7_t = dict_find(iter, MESSAGE_KEY_Row7);
   Tuple *row_8_t = dict_find(iter, MESSAGE_KEY_Row8);
 
-  char *row_1_s = "00000000";
-  char *row_2_s = "00000000";
-  char *row_3_s = "00000000";
-  char *row_4_s = "00000000";
-  char *row_5_s = "00000000";
-  char *row_6_s = "00000000";
-  char *row_7_s = "00000000";
-  char *row_8_s = "00000000";
+  char *row_1_s = "000000000";
+  char *row_2_s = "000000001"; //apparently the numbers are important else it thinks it's the same address
+  char *row_3_s = "000000002";
+  char *row_4_s = "000000003";
+  char *row_5_s = "000000004";
+  char *row_6_s = "000000005";
+  char *row_7_s = "000000006";
+  char *row_8_s = "000000007";
 
-  //TODO make shorter strings rightpad!
-
-/*
-  if (row_1_t) memcpy(row_1_s, (row_1_t->value->cstring), strlen(row_1_t->value->cstring));
-  if (row_2_t) memcpy(row_2_s, (row_2_t->value->cstring), strlen(row_2_t->value->cstring));
-  if (row_3_t) memcpy(row_3_s, (row_3_t->value->cstring), strlen(row_3_t->value->cstring));
-  if (row_4_t) memcpy(row_4_s, (row_4_t->value->cstring), strlen(row_4_t->value->cstring));
-  if (row_5_t) memcpy(row_5_s, (row_5_t->value->cstring), strlen(row_5_t->value->cstring));
-  if (row_6_t) memcpy(row_6_s, (row_6_t->value->cstring), strlen(row_6_t->value->cstring));
-  if (row_7_t) memcpy(row_7_s, (row_7_t->value->cstring), strlen(row_7_t->value->cstring));
-  if (row_8_t) memcpy(row_8_s, (row_8_t->value->cstring), strlen(row_8_t->value->cstring));
-*/
   if (row_1_t)
   {
     row_1_s = row_1_t ? (row_1_t->value->cstring) : "00000000";
@@ -129,6 +152,41 @@ static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) 
     replace_char(row_6_s, '0', ' ');
     replace_char(row_7_s, '0', ' ');
     replace_char(row_8_s, '0', ' ');
+  }
+  else if (fullMatrix_t)
+  {
+    char *fullMatrix_s = fullMatrix_t->value->cstring;
+    replace_char(fullMatrix_s, '0', ' '); //replace 0 with space
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "fullmatrix: %s", fullMatrix_s);
+
+    strncpy(row_1_s, fullMatrix_s+0,8);
+    strncpy(row_2_s, fullMatrix_s+8,8);
+    strncpy(row_3_s, fullMatrix_s+16,8);
+    strncpy(row_4_s, fullMatrix_s+24,8);
+    strncpy(row_5_s, fullMatrix_s+32,8);
+    strncpy(row_6_s, fullMatrix_s+40,8);
+    strncpy(row_7_s, fullMatrix_s+48,8);
+    strncpy(row_8_s, fullMatrix_s+56,8);
+    row_1_s[8] = '\0';
+    row_2_s[8] = '\0';
+    row_3_s[8] = '\0';
+    row_4_s[8] = '\0';
+    row_5_s[8] = '\0';
+    row_6_s[8] = '\0';
+    row_7_s[8] = '\0';
+    row_8_s[8] = '\0';
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", row_1_s);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", row_2_s);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", row_3_s);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", row_4_s);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", row_5_s);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", row_6_s);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", row_7_s);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", row_8_s);
+  }
+
+  if (row_1_t || fullMatrix_t) //if somehow matrix is being set set the matrix and write it to persistant data
+  {
     set_matrix(row_1_s, 
               row_2_s,
               row_3_s,
@@ -200,7 +258,7 @@ static void tick_handler_day(struct tm *tick_time, TimeUnits units_changed) {
 static void reset_matrix()
 {
   bool isBTConnected = persist_exists(BLUETOOTH_CONNECTED_KEY) ? persist_read_bool(BLUETOOTH_CONNECTED_KEY) : true;
-  
+
   if (isBTConnected)
   {
     //handle matrix persistant data
@@ -316,6 +374,13 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_matrix_layer, GTextAlignmentLeft);
   text_layer_set_overflow_mode(s_matrix_layer, GTextOverflowModeWordWrap);
 
+  // Create battery meter Layer
+  s_battery_layer = layer_create(GRect(104, 111, 29, 7));
+  layer_set_update_proc(s_battery_layer, battery_update_proc);
+
+  // Add to Window  
+  layer_add_child(/*window_get_root_layer(window)*/window_layer, s_battery_layer);
+
   //handle inital matrix state
   reset_matrix();
 
@@ -350,6 +415,9 @@ static void main_window_unload(Window *window) {
   // Destroy bitmap & layer
   gbitmap_destroy(s_bitmap);
   bitmap_layer_destroy(s_bitmap_layer);
+
+  // Destroy battery layer
+  layer_destroy(s_battery_layer);
 }
 
 static void init() {
@@ -374,9 +442,16 @@ static void init() {
     .pebble_app_connection_handler = bluetooth_callback
   });
 
+  // Register for battery level updates
+  battery_state_service_subscribe(battery_callback);
+
   // Make sure the time is displayed from the start
   update_time();
   update_date();
+
+  // Ensure battery level is displayed from the start
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Battery level %d", battery_state_service_peek().charge_percent);
+  battery_callback(battery_state_service_peek());
 
   // Open AppMessage connection
   app_message_register_inbox_received(prv_inbox_received_handler);

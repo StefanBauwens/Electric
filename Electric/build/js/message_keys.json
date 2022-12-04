@@ -8,6 +8,9 @@
     "Row7": 10006,
     "Row8": 10007,
     "apiKey": 10009,
+    "fullMatrix": 10011,
+    "lcd": 10012,
+    "lcdReset": 10013,
     "temp": 10010,
     "useFahrenheit": 10008
 }
