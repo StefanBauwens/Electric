@@ -22,7 +22,7 @@ Using Tasker intents it's actually possible to modify the LCD or LED Dot Matrix,
 ### Set LCD 
 1. Create a new task and select the 'Send Intent' action (Under System). 
 2. Set Action to: `com.getpebble.action.app.SEND`
-3. Set 1st Exta to: `uuid:595e1d90-ec79-4199-820d-09aea593309f`
+3. Set 1st Extra to: `uuid:595e1d90-ec79-4199-820d-09aea593309f`
 4. Set 2nd Extra to: `transaction_id:-1`
 5. Set 3rd Extra to: `msg_data:[{"key":10012,"type":"string","length":0,"value":"your message here"}]`
 
