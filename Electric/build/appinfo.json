@@ -22,7 +22,7 @@
     }, 
     "companyName": "Stefan Bauwens", 
     "enableMultiJS": true, 
-    "versionLabel": "1.0", 
+    "versionLabel": "1.1", 
     "capabilities": [
         "location", 
         "configurable"
