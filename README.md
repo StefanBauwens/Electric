@@ -32,5 +32,10 @@ To reset the LCD to default (show date and temperature), follow the same 4 steps
 To set the Dot Matrix, use the same 4 steps as mentioned earlier and replace step 5 with: 
 `msg_data:[{"key":10011,"type":"string","length":0,"value":"0000000001100110111111111111111111111111011111100011110000011000
 "}]`
-
 The value field should be a 64 character string using only 0's and 1's.
+
+### Examples
+- Show the price of your favorite stock on the LCD: https://taskernet.com/shares/?user=AS35m8m%2FxB1%2FT873xL87mtAXOLmlxKc87toLJDt088HjC6l4%2FF%2FDf5f8qZurAPsvOYZ5wImto2OC0A%3D%3D&id=Task%3AGetgme
+- Fetch the moonphase using your OpenWeather API key and show a relavant moon icon on the Dot Matrix:
+https://taskernet.com/shares/?user=AS35m8m%2FxB1%2FT873xL87mtAXOLmlxKc87toLJDt088HjC6l4%2FF%2FDf5f8qZurAPsvOYZ5wImto2OC0A%3D%3D&id=Task%3AMoonphasepebble
+
