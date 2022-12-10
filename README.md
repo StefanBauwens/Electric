@@ -8,6 +8,7 @@ v1.0:
 - tell the time
 - tell the date on LCD
 - interactive 8x8 LED Dot Matrix (configurable via watchface settings)
+
 v1.1
 - improve the visibility of the electronic wires
 - add battery indicator
