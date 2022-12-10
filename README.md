@@ -1,5 +1,5 @@
 # Electric
-
+![Electric watchface screenshot](Electric/pebble_screenshot_2022-12-03_14-34-36.png)
 Electronics inspired, interactive pebble Watchface made for the Rebble Hackaton #001
 
 ## Features & Updates:
