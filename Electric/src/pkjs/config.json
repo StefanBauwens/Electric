@@ -15,16 +15,16 @@
         "defaultValue": "Temperature"
       },
       {
-        "type": "toggle",
-        "messageKey": "useFahrenheit",
-        "label": "Use Fahrenheit",
-        "defaultValue": false
-      },
-      {
         "type": "input",
         "messageKey": "apiKey",
         "label": "OpenWeatherMap API key",
         "defaultValue": ""
+      },
+      {
+        "type": "toggle",
+        "messageKey": "useFahrenheit",
+        "label": "Use Fahrenheit",
+        "defaultValue": false
       }
     ]
   },

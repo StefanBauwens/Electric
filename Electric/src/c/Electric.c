@@ -8,6 +8,8 @@
 #define ROW8_KEY 8
 #define TEMPERATURE_KEY 10
 #define BLUETOOTH_CONNECTED_KEY 11
+#define LCD_OVERRIDE_TEXT_KEY 12 //string
+#define RESET_LCD_KEY 13 //bool: true? print default to lcd, false? print overriden text, automatically jumps to true if lcd is overriden
 
 #include <pebble.h>
 
@@ -22,11 +24,13 @@ static GFont s_matrix_font;
 static GBitmap *s_bitmap;
 static int s_battery_level;
 static Layer *s_battery_layer;
+static bool resetLcd;//true? print default to lcd, false? print overriden text, automatically jumps to true if lcd is overriden
 
 static char s_matrix_buffer[75];
-static char s_lcd_buffer[33];
+static char s_lcd_buffer[34];
 static char s_date_buffer[17];
-static char s_temperature_buffer[8];
+static char s_temperature_buffer[17];
+static char s_lcd_override_text[34];
 
 char* replace_char(char* str, char find, char replace){
     char *current_pos = strchr(str,find);
@@ -36,22 +40,18 @@ char* replace_char(char* str, char find, char replace){
     }
     return str;
 }
-/*
-// C substring function definition
-void substring(char s[], char sub[], int p, int l) {
-   int c = 0;
-   
-   while (c < l) {
-      sub[c] = s[p+c-1];
-      c++;
-   }
-   sub[c] = '\0';
-}*/
 
 static void set_lcd()
 {
   //write on lcd
-  snprintf(s_lcd_buffer, sizeof(s_lcd_buffer), "%s %s", s_date_buffer, s_temperature_buffer); //combine test out
+  if (resetLcd) //show default
+  {  
+    snprintf(s_lcd_buffer, sizeof(s_lcd_buffer), "%s %s", s_date_buffer, s_temperature_buffer); //combine test out
+  }
+  else //show override
+  {
+    snprintf(s_lcd_buffer, sizeof(s_lcd_buffer), "%s", s_lcd_override_text); 
+  }
   text_layer_set_text(s_lcd_layer, s_lcd_buffer);
 }
 
@@ -110,6 +110,42 @@ static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) 
     //write to lcd
     set_lcd();
   }
+
+  //get reset key if sent (we're only interested if it's set to true)
+  Tuple *resetLcd_t = dict_find(iter, MESSAGE_KEY_lcdReset);
+  if (resetLcd_t)
+  {
+    bool resetLcd_temp = (bool)(resetLcd_t->value->int32);
+    if (resetLcd_temp) //we only register if true
+    {
+      resetLcd = true;
+      persist_write_bool(RESET_LCD_KEY, true);
+      set_lcd(); //refresh
+    }
+  }
+
+  //check for lcd override
+  Tuple *lcd_override_text_t = dict_find(iter, MESSAGE_KEY_lcd);
+  if (lcd_override_text_t)
+  {
+    resetLcd = false;
+    persist_write_bool(RESET_LCD_KEY, false);
+    
+    char lcd_row_one[17] = ""; //16 length + null character
+    char lcd_row_two[17] = "";
+    char *row_two_temp = lcd_override_text_t->value->cstring + 16;
+    snprintf(lcd_row_one, sizeof(lcd_row_one), "%s", lcd_override_text_t->value->cstring);
+
+    if (strlen(lcd_override_text_t->value->cstring) > 16)
+    {
+      snprintf(lcd_row_two, sizeof(lcd_row_two), "%s", row_two_temp);
+    }    
+
+    snprintf(s_lcd_override_text, sizeof(s_lcd_override_text), "%s %s ", lcd_row_one, lcd_row_two);
+    persist_write_string(LCD_OVERRIDE_TEXT_KEY, s_lcd_override_text);
+    set_lcd();
+  }
+
 
   //Get full 8X8 data if exist
   Tuple *fullMatrix_t = dict_find(iter, MESSAGE_KEY_fullMatrix);
@@ -384,6 +420,24 @@ static void main_window_load(Window *window) {
   //handle inital matrix state
   reset_matrix();
 
+  //handle lcd persistant data
+  if(!persist_exists(RESET_LCD_KEY))
+  {
+    resetLcd = true; //default
+  }
+  else
+  {
+    resetLcd = persist_read_bool(RESET_LCD_KEY);
+  }
+  if(!persist_exists(LCD_OVERRIDE_TEXT_KEY))
+  {
+    snprintf(s_lcd_override_text, sizeof(s_lcd_override_text), "%s", ""); //empty string if not set
+  }
+  else
+  {
+    persist_read_string(LCD_OVERRIDE_TEXT_KEY, s_lcd_override_text, sizeof(s_lcd_override_text));
+  }
+
   //handle temperature persistant data
   if(!persist_exists(TEMPERATURE_KEY))
   {
@@ -392,7 +446,7 @@ static void main_window_load(Window *window) {
   else
   {
     persist_read_string(TEMPERATURE_KEY, s_temperature_buffer, sizeof(s_temperature_buffer));
-    set_lcd();
+    set_lcd(); //gets called in time as well
   }
 
   // Add Text as a child layer to the Window's root layer

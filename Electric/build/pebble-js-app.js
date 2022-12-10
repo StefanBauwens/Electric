@@ -85,6 +85,8 @@
 	var clay = new Clay(clayConfig, null, {autoHandleEvents: false});
 	var messageKeys = __webpack_require__(5);
 	
+	const TIMEOUT_MS = 1000;
+	
 	
 	var xhrRequest = function (url, type, callback) {
 	    var xhr = new XMLHttpRequest();
@@ -96,63 +98,81 @@
 	};
 	
 	function locationSuccess(pos) {
-	    // We will request the weather here
+	    //store last position
+	    localStorage.setItem("LAST_LATITUDE", pos.coords.latitude);
+	    localStorage.setItem("LAST_LONGITUDE", pos.coords.longitude);
+	    
+	    fetchWeather();
+	}
 	
+	function fetchWeather() { //actual weather fetching is here
+	    // We will request the weather here
 	    var apiKey = localStorage.getItem("OPENWEATHER_APIKEY");
 	    var useFahrenheit = localStorage.getItem("USEFAHRENHEIT");
 	
-	    if (apiKey === null || apiKey == "")
+	    var lat = localStorage.getItem("LAST_LATITUDE");
+	    var lon = localStorage.getItem("LAST_LONGITUDE");
+	
+	    if (apiKey === null || apiKey == "" || lat === null)
 	    {
 	        console.log("Apikey is null. Returning empty string");
 	        var dict = { "temp": " " };
 	
 	            // Send to Pebble
-	            Pebble.sendAppMessage(dict,
-	                function(e) {
-	                    console.log('Empty weather info sent to Pebble successfully!');
-	                },
-	                function(e) {
-	                    console.log('Error sending empty weather info to Pebble!');
-	                }
-	            );
-	        return;
+	            setTimeout( 
+	                Pebble.sendAppMessage(dict,
+	                    function(e) {
+	                        console.log('Empty weather info sent to Pebble successfully!');
+	                    },
+	                    function(e) {
+	                        console.log('Error sending empty weather info to Pebble!');
+	                    }
+	                ),
+	            TIMEOUT_MS);
+	        return; //since we have no api key and no location data
 	    }
 	
 	    // Construct URL
 	    var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
-	    pos.coords.latitude + '&lon=' + pos.coords.longitude + '&appid=' + apiKey + '&units=' + (useFahrenheit == 1?'imperial':'metric');
+	    lat + '&lon=' + lon + '&appid=' + apiKey + '&units=' + (useFahrenheit == 1?'imperial':'metric');
 	
 	    // Send request to OpenWeatherMap
 	    xhrRequest(url, 'GET', 
 	        function(responseText) {
 	            // responseText contains a JSON object with weather info
 	            var json = JSON.parse(responseText);
+	            var temperature = 'Invalid API key'; //default return temp
 	
-	            //we use toFixed to get .0 at the end even if it's nice and round. I mainly want a comma number because then the string will be
-	            //long enough in all cases to overflow to the next line of lcd haha
-	            var temperature = (Math.round(json.main.temp*10)/10).toFixed(1) + (useFahrenheit == 1?'°F':'°C');
-	            console.log('Temperature is ' + temperature);
+	            if (json.cod != 401)
+	            {
+	                //we use toFixed to get .0 at the end even if it's nice and round
+	                temperature = (Math.round(json.main.temp*10)/10).toFixed(1) + (useFahrenheit == 1?'°F':'°C');
+	                console.log('Temperature is ' + temperature);
+	            }
 	
 	            var dict = { "temp": temperature };
 	
 	            // Send to Pebble
-	            Pebble.sendAppMessage(dict,
-	                function(e) {
-	                    console.log('Weather info sent to Pebble successfully!');
-	                },
-	                function(e) {
-	                    console.log('Error sending weather info to Pebble!');
-	                }
-	            );
+	            setTimeout( //timeout helps prevent errors
+	                Pebble.sendAppMessage(dict,
+	                    function(e) {
+	                        console.log('Weather info sent to Pebble successfully!');
+	                    },
+	                    function(e) {
+	                        console.log('Error sending weather info to Pebble!');
+	                    }
+	                ),
+	            TIMEOUT_MS);
 	        }      
 	    );
 	}
 	  
 	function locationError(err) {
-	    console.log('Error requesting location!'); //TODO use failsafe then?
+	    console.log('Error requesting location! Using last saved data...'); //TODO use failsafe then?
+	    fetchWeather();
 	}
 	  
-	function getWeather() {
+	function getWeather() { //will try to get location, then actually fetch weather
 	    navigator.geolocation.getCurrentPosition(
 	        locationSuccess,
 	        locationError,
@@ -197,8 +217,6 @@
 	    {
 		    newDict[dictKeys[i]] = dict[dictKeys[i]];
 	    }
-	    //console.log("newDict: " + JSON.stringify(newDict));
-	    //console.log("e.response: " + e.response);
 	
 	    // Send settings values to watch side
 	    Pebble.sendAppMessage(newDict, function(e) {
@@ -208,13 +226,10 @@
 	        console.log(JSON.stringify(e));
 	    });
 	
-	    //if (dict[messageKeys.apiKey])
-	    //{
-	        console.log("apikey: " + dict[messageKeys.apiKey]);
-	        localStorage.setItem("OPENWEATHER_APIKEY", dict[messageKeys.apiKey]);
-	        localStorage.setItem("USEFAHRENHEIT", dict[messageKeys.useFahrenheit]);
-	        getWeather(); //call getweather every time config is set in case user changed degrees settings
-	    //}
+	    console.log("apikey: " + dict[messageKeys.apiKey]);
+	    localStorage.setItem("OPENWEATHER_APIKEY", dict[messageKeys.apiKey]);
+	    localStorage.setItem("USEFAHRENHEIT", dict[messageKeys.useFahrenheit]);
+	    getWeather(); //call getweather every time config is set in case user changed degrees settings
 	  }
 	);
 
@@ -262,7 +277,7 @@
 /* 6 */
 /***/ (function(module, exports) {
 
-	module.exports = [{"type":"heading","defaultValue":"Electric Watchface"},{"type":"text","defaultValue":"Created by Stefan Bauwens for the Rebble Hackathon 001"},{"type":"section","items":[{"type":"heading","defaultValue":"Temperature"},{"type":"toggle","messageKey":"useFahrenheit","label":"Use Fahrenheit","defaultValue":false},{"type":"input","messageKey":"apiKey","label":"OpenWeatherMap API key","defaultValue":""}]},{"type":"section","items":[{"type":"heading","defaultValue":"Dot Matrix"},{"type":"text","defaultValue":"Set the individual pixels of the dot matrix using 0 for off and 1 for on"},{"type":"input","messageKey":"Row1","defaultValue":"00000000","label":"Row 1","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row2","defaultValue":"01100110","label":"Row 2","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row3","defaultValue":"11111111","label":"Row 3","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row4","defaultValue":"11111111","label":"Row 4","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row5","defaultValue":"11111111","label":"Row 5","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row6","defaultValue":"01111110","label":"Row 6","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row7","defaultValue":"00111100","label":"Row 7","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row8","defaultValue":"00011000","label":"Row 8","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}}]},{"type":"submit","defaultValue":"Save"}]
+	module.exports = [{"type":"heading","defaultValue":"Electric Watchface"},{"type":"text","defaultValue":"Created by Stefan Bauwens for the Rebble Hackathon 001"},{"type":"section","items":[{"type":"heading","defaultValue":"Temperature"},{"type":"input","messageKey":"apiKey","label":"OpenWeatherMap API key","defaultValue":""},{"type":"toggle","messageKey":"useFahrenheit","label":"Use Fahrenheit","defaultValue":false}]},{"type":"section","items":[{"type":"heading","defaultValue":"Dot Matrix"},{"type":"text","defaultValue":"Set the individual pixels of the dot matrix using 0 for off and 1 for on"},{"type":"input","messageKey":"Row1","defaultValue":"00000000","label":"Row 1","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row2","defaultValue":"01100110","label":"Row 2","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row3","defaultValue":"11111111","label":"Row 3","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row4","defaultValue":"11111111","label":"Row 4","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row5","defaultValue":"11111111","label":"Row 5","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row6","defaultValue":"01111110","label":"Row 6","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row7","defaultValue":"00111100","label":"Row 7","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}},{"type":"input","messageKey":"Row8","defaultValue":"00011000","label":"Row 8","attributes":{"placeholder":"eg: 01010101","maxLength":8,"type":"tel"}}]},{"type":"submit","defaultValue":"Save"}]
 
 /***/ })
 /******/ ]);
