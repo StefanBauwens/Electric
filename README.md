@@ -25,10 +25,12 @@ Using Tasker intents it's actually possible to modify the LCD or LED Dot Matrix,
 5. Set 3rd Extra to: `msg_data:[{"key":10012,"type":"string","length":0,"value":"your message here"}]`
 
 ### Reset LCD
-To reset the LCD to default (show date and temperature), follow the same 4 steps as above but replace step 5 with: `msg_data:[{"key":10013,"type":"string","length":0,"value":1}]`
+To reset the LCD to default (show date and temperature), follow the same 4 steps as above but replace step 5 with: 
+`msg_data:[{"key":10013,"type":"string","length":0,"value":1}]`
 
 ### Set LED Dot Matrix
-To set the Dot Matrix, use the same 4 steps as mentioned earlier and replace step 5 with: `msg_data:[{"key":10011,"type":"string","length":0,"value":"0000000001100110111111111111111111111111011111100011110000011000
+To set the Dot Matrix, use the same 4 steps as mentioned earlier and replace step 5 with: 
+`msg_data:[{"key":10011,"type":"string","length":0,"value":"0000000001100110111111111111111111111111011111100011110000011000
 "}]`
 
 The value field should be a 64 character string using only 0's and 1's.
