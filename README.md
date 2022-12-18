@@ -41,4 +41,3 @@ The value field should be a 64 character string using only 0's and 1's.
 - Show the price of your favorite stock on the LCD: https://taskernet.com/shares/?user=AS35m8m%2FxB1%2FT873xL87mtAXOLmlxKc87toLJDt088HjC6l4%2FF%2FDf5f8qZurAPsvOYZ5wImto2OC0A%3D%3D&id=Task%3AGetgme
 - Fetch the moonphase using your OpenWeather API key and show a relevant moon icon on the Dot Matrix:
 https://taskernet.com/shares/?user=AS35m8m%2FxB1%2FT873xL87mtAXOLmlxKc87toLJDt088HjC6l4%2FF%2FDf5f8qZurAPsvOYZ5wImto2OC0A%3D%3D&id=Task%3AMoonphasepebble
-
