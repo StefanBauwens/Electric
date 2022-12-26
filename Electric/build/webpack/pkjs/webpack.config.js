@@ -6,7 +6,7 @@ const isSandbox = false;
 
 // Array with absolute file path strings
 const entryFilenames = ["_pkjs_shared_additions.js",
-"/home/rebble/Documents/Electric/Electric/src/pkjs/index.js"];
+"/home/rebble/Documents/GitHub/Electric/Electric/src/pkjs/index.js"];
 
 // folder path string
 const outputPath = "build";
@@ -18,10 +18,10 @@ const outputFilename = "pebble-js-app.js";
 const resolveRoots = ["/home/rebble/.pebble-sdk/SDKs/current/sdk-core/pebble/common/include",
 "/home/rebble/.pebble-sdk/SDKs/current/sdk-core/pebble/common/tools/webpack",
 "/home/rebble/.pebble-sdk/SDKs/current/node_modules",
-"/home/rebble/Documents/Electric/Electric/build/js"];
+"/home/rebble/Documents/GitHub/Electric/Electric/build/js"];
 
 // Object, { alias1: 'path1', ... }
-const resolveAliases = {"app_package.json": "/home/rebble/Documents/Electric/Electric/package.json",
+const resolveAliases = {"app_package.json": "/home/rebble/Documents/GitHub/Electric/Electric/package.json",
 "pebble-clay": "pebble-clay/dist/js"};
 
 // null or Object with key 'sourceMapFilename'

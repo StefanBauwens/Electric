@@ -1,7 +1,7 @@
 {
   "name": "Electric",
   "author": "Stefan Bauwens",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "keywords": [
     "pebble-watchface"
   ],
@@ -15,7 +15,9 @@
     "sdkVersion": "3",
     "enableMultiJS": true,
     "targetPlatforms": [
-      "basalt"
+      "basalt",
+      "aplite",
+      "diorite"
     ],
     "capabilities": [
       "configurable",
@@ -64,6 +66,11 @@
           "type": "bitmap",
           "name": "BG_IMAGE",
           "file": "background11.png"
+        },
+        {
+          "type": "bitmap",
+          "name": "BG_IMAGE_BW",
+          "file": "backgroundBW.png"
         }
       ]
     }

@@ -1,6 +1,8 @@
 {
     "targetPlatforms": [
-        "basalt"
+        "basalt", 
+        "aplite", 
+        "diorite"
     ], 
     "displayName": "Electric", 
     "name": "Electric", 
@@ -22,7 +24,7 @@
     }, 
     "companyName": "Stefan Bauwens", 
     "enableMultiJS": true, 
-    "versionLabel": "1.1", 
+    "versionLabel": "1.2", 
     "capabilities": [
         "location", 
         "configurable"
@@ -73,6 +75,11 @@
                 "type": "bitmap", 
                 "name": "BG_IMAGE", 
                 "file": "background11.png"
+            }, 
+            {
+                "type": "bitmap", 
+                "name": "BG_IMAGE_BW", 
+                "file": "backgroundBW.png"
             }
         ]
     }, 

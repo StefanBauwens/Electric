@@ -11,6 +11,8 @@
 #define LCD_OVERRIDE_TEXT_KEY 12 //string
 #define RESET_LCD_KEY 13 //bool: true? print default to lcd, false? print overriden text, automatically jumps to true if lcd is overriden
 
+//#undef PBL_COLOR //TODO temp to test BW
+
 #include <pebble.h>
 
 static Window *s_main_window;
@@ -89,7 +91,11 @@ static void battery_update_proc(Layer *layer, GContext *ctx) { //handles drawing
   int battery_levels_to_show = (s_battery_level+5)/10; //should create a rounded integer between 0 and 10
 
   //draw the bars
+#if defined(PBL_COLOR)
   graphics_context_set_fill_color(ctx, GColorBrightGreen);
+#else
+  graphics_context_set_fill_color(ctx, GColorWhite);
+#endif
   for(int i = 0; i < battery_levels_to_show; i++)
   {
     graphics_fill_rect(ctx, GRect(27 - 3*i, 0, 2, 7), 0, GCornerNone);
@@ -369,7 +375,11 @@ static void main_window_load(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
 
   // Create GBitmap for background
+#if defined(PBL_COLOR)
   s_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BG_IMAGE);
+#else
+  s_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BG_IMAGE_BW);
+#endif
 
   // Create bitmap layer
   s_bitmap_layer = bitmap_layer_create(GRect(0, 0, 144, 168));
@@ -391,7 +401,11 @@ static void main_window_load(Window *window) {
 
   // Improve the layout to be more like a watchface
   text_layer_set_background_color(s_time_layer, GColorClear);
+#if defined(PBL_COLOR)
   text_layer_set_text_color(s_time_layer, GColorBrightGreen);
+#else
+  text_layer_set_text_color(s_time_layer, GColorWhite);
+#endif
   text_layer_set_font(s_time_layer, s_time_font);
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 
@@ -405,7 +419,11 @@ static void main_window_load(Window *window) {
 
   //handle matrix text layer
   text_layer_set_background_color(s_matrix_layer, GColorClear);
+#if defined(PBL_COLOR)
   text_layer_set_text_color(s_matrix_layer, GColorBrightGreen);
+#else
+  text_layer_set_text_color(s_matrix_layer, GColorWhite);
+#endif
   text_layer_set_font(s_matrix_layer, s_matrix_font);
   text_layer_set_text_alignment(s_matrix_layer, GTextAlignmentLeft);
   text_layer_set_overflow_mode(s_matrix_layer, GTextOverflowModeWordWrap);
