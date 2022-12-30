@@ -16,6 +16,9 @@ v1.1
 - add temperature to LCD (using openweather API key you set in settings)
 - add support to modify LCD and Dot Matrix via Tasker(!)
 
+v1.2
+- add support for B&W models
+
 ## Interactivity with Tasker
 Using Tasker intents it's actually possible to modify the LCD or LED Dot Matrix, giving you endless possibilities for this watchface!
 
