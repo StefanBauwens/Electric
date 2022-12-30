@@ -2,6 +2,7 @@
 Electronics inspired, interactive Pebble watchface made for the Rebble Hackaton #001
 
 ![Electric watchface screenshot](Electric/pebble_screenshot_2022-12-03_14-34-36.png)
+![Electric monochrome watchface screenshot](Electric/pebble_screenshot_2022-12-26_22-47-12.png)
 
 ## Features & Updates:
 v1.0:
