@@ -213,7 +213,7 @@
 	
 	    var dictKeys = Object.keys(dict);
 	    var newDict = {};
-	    for (let i = 0; i < dictKeys.length - 2; i++) //we skip temperature stuff
+	    for (var i = 0; i < dictKeys.length - 2; i++) //we skip temperature stuff
 	    {
 		    newDict[dictKeys[i]] = dict[dictKeys[i]];
 	    }
