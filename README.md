@@ -20,6 +20,9 @@ v1.1
 v1.2
 - add support for B&W models
 
+v1.3
+- fix settings bug on iOS
+
 ## Interactivity with Tasker
 Using Tasker intents it's actually possible to modify the LCD or LED Dot Matrix, giving you endless possibilities for this watchface!
 
